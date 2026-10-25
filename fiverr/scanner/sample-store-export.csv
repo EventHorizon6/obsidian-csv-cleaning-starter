@@ -1,0 +1,13 @@
+product_id,title,price,stock,launch_date,barcode,notes
+P-1001,Canvas tote bag,$24.00,12,03/04/2025,00123456,
+P-1002,Ceramic mug ,18.5,40,15/04/2025,04012345,Gift box
+P-1003,Linen napkins (set of 4),N/A,7,21/04/2025,012000,
+P-1004,,32,,30/04/2025,05011111,Needs photo
+P-1002,Ceramic mug,19.5,40,15/04/2025,04012345,Gift box
+P-1005,Beeswax candle,12,25,2025-05-02,1234567890123456789,=SUM(A1:A9)
+P-1006,Wool throw,89,3,31/13/2025,07000000,"Ships in two
+parcels"
+P-1007,Cotton apron,twenty,9,05/05/2025,08000000,@restock
+P-1008,Recycled notebook,6.75,60,06/05/2025,09000000
+P-1008,Recycled notebook,6.75,60,06/05/2025,09000000,
+P-1009,Glass carafe,27,,07/05/2025,,

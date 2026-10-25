@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-src 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="A worked example of finding CSV import problems before upload: duplicate IDs, conflicting records, unreadable dates, formula risks and lost leading zeros, found by a free in-browser scanner on a synthetic product export.">
+  <title>How to find CSV import problems before they break your upload - a worked example</title>
+  <style>
+:root { color-scheme: light; --ink: #15221f; --muted: #4c5c58; --paper: #f5f7f4; --card: #fff; --accent: #176b58; --accent-dark: #104b40; --line: #d7e0da; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.65; }
+.page { width: min(100% - 1.5rem, 56rem); margin: clamp(.75rem, 4vw, 2.5rem) auto; padding: clamp(1rem, 4vw, 3rem); background: var(--card); border: 1px solid var(--line); border-radius: 1.25rem; }
+h1 { color: var(--accent-dark); font-size: clamp(1.8rem, 6vw, 2.8rem); line-height: 1.15; margin: 0 0 .5rem; }
+h2 { margin: 2.25rem 0 .75rem; font-size: clamp(1.3rem, 4vw, 1.65rem); line-height: 1.2; }
+h3 { margin: 1.5rem 0 .4rem; font-size: 1.1rem; }
+p, ul, ol { max-width: 70ch; }
+a { color: var(--accent-dark); text-underline-offset: .18em; }
+a:focus-visible { outline: 3px solid #d58c18; outline-offset: 3px; }
+pre { background: #f0f4f1; border: 1px solid var(--line); border-radius: .5rem; padding: .9rem; overflow-x: auto; font-size: .85rem; }
+code { font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: .5rem; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { background: #f0f4f1; }
+.sev { display: inline-block; font-size: .75rem; font-weight: 700; padding: .05rem .5rem; border-radius: 999px; text-transform: uppercase; vertical-align: middle; }
+.sev.high { color: #9b1c1c; background: #fdecec; }
+.sev.medium { color: #8a4b00; background: #fff3df; }
+.sev.low { color: #2f4f7a; background: #e9f0fa; }
+.note { color: var(--muted); font-size: .92rem; }
+.cta { display: inline-block; margin: .5rem .5rem .5rem 0; padding: .7rem 1.1rem; border-radius: .65rem; background: var(--accent); color: #fff; font-weight: 650; text-decoration: none; }
+.cta:hover { background: var(--accent-dark); }
+.offer { border: 2px solid var(--accent); border-radius: 1rem; padding: 1.25rem; margin: 2rem 0; background: #f8fbf9; }
+footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+  </style>
+</head>
+<body>
+<main class="page">
+  <h1>How to find CSV import problems before they break your upload</h1>
+  <p>A product, customer or order export can look fine in a spreadsheet and still fail an import, or worse, import the wrong data. This worked example runs the free <a href="index.html">Data Rescue Scanner</a> on a small synthetic product export and explains every problem it reports. The file is invented for this example; the findings below are the scanner's real output for it.</p>
+  <p><a class="cta" href="index.html">Scan your own CSV - free, in your browser</a></p>
+
+  <h2>The sample file</h2>
+  <p>A synthetic store export with 13 lines: a header, 11 product rows, and one note that spans two lines. Nothing in it describes a real business or person. <a href="sample-store-export.csv" download>Download the sample CSV</a> to scan it yourself.</p>
+  <pre><code>product_id,title,price,stock,launch_date,barcode,notes
+P-1001,Canvas tote bag,$24.00,12,03/04/2025,00123456,
+P-1002,Ceramic mug ,18.5,40,15/04/2025,04012345,Gift box
+P-1003,Linen napkins (set of 4),N/A,7,21/04/2025,012000,
+P-1004,,32,,30/04/2025,05011111,Needs photo
+P-1002,Ceramic mug,19.5,40,15/04/2025,04012345,Gift box
+P-1005,Beeswax candle,12,25,2025-05-02,1234567890123456789,=SUM(A1:A9)
+P-1006,Wool throw,89,3,31/13/2025,07000000,&quot;Ships in two
+parcels&quot;
+P-1007,Cotton apron,twenty,9,05/05/2025,08000000,@restock
+P-1008,Recycled notebook,6.75,60,06/05/2025,09000000
+P-1008,Recycled notebook,6.75,60,06/05/2025,09000000,
+P-1009,Glass carafe,27,,07/05/2025,,</code></pre>
+
+  <h2>What the scanner found</h2>
+  <p>32 findings of 12 kinds across 11 data rows and 7 columns: 6 high priority, 23 medium and 3 low. The scanner treated <code>product_id</code> as the identifier column, because its name ends in <code>id</code>. Row numbers are spreadsheet rows, so row 1 is the header.</p>
+  <div class="table-wrap"><table>
+    <caption class="note" style="text-align:left;padding:.4rem .6rem">Findings by type for the sample file</caption>
+    <thead><tr><th scope="col">Severity</th><th scope="col">Problem</th><th scope="col">Count</th><th scope="col">Rows</th></tr></thead>
+    <tbody>
+<tr><td><span class="sev high">high</span></td><td>Row with the wrong number of cells</td><td>1</td><td>10</td></tr>
+<tr><td><span class="sev high">high</span></td><td>Spreadsheet formula risk</td><td>2</td><td>7, 9</td></tr>
+<tr><td><span class="sev high">high</span></td><td>Same identifier, different details</td><td>2</td><td>3, 6</td></tr>
+<tr><td><span class="sev high">high</span></td><td>Date that cannot be read</td><td>1</td><td>8</td></tr>
+<tr><td><span class="sev medium">medium</span></td><td>Exact duplicate row</td><td>1</td><td>11</td></tr>
+<tr><td><span class="sev medium">medium</span></td><td>Inconsistent value in a numeric column</td><td>3</td><td>2, 4, 9</td></tr>
+<tr><td><span class="sev medium">medium</span></td><td>Leading zeros at risk</td><td>9</td><td>2, 3, 4, 5, 6, 8, 9, 10, 11</td></tr>
+<tr><td><span class="sev medium">medium</span></td><td>Long number that spreadsheets round</td><td>1</td><td>7</td></tr>
+<tr><td><span class="sev medium">medium</span></td><td>Missing value</td><td>9</td><td>2, 4, 5, 10, 11, 12</td></tr>
+<tr><td><span class="sev low">low</span></td><td>Placeholder instead of an empty value</td><td>1</td><td>4</td></tr>
+<tr><td><span class="sev low">low</span></td><td>Line break inside a cell</td><td>1</td><td>8</td></tr>
+<tr><td><span class="sev low">low</span></td><td>Extra spaces</td><td>1</td><td>3</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>What each problem means</h2>
+<section class="problem"><h3>Row with the wrong number of cells <span class="sev high">high</span></h3><p><strong>Why it matters:</strong> Values shift into the wrong columns, usually because of a stray delimiter or quotation mark.</p><p><strong>What to do:</strong> Check the row for an extra or missing delimiter, or a value containing the delimiter that is not quoted.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 10, (whole row): row has 6 cells where the header has 7; the missing cells were treated as blank</li></ul></section>
+<section class="problem"><h3>Spreadsheet formula risk <span class="sev high">high</span></h3><p><strong>Why it matters:</strong> A cell starting with =, +, - or @ can run as a formula when the file is opened in a spreadsheet (CSV injection).</p><p><strong>What to do:</strong> Treat the file with care. Remove the leading character, or prefix the cell with an apostrophe before opening the file in a spreadsheet.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 7, notes: starts with a character a spreadsheet would run as a formula (<code>=SUM(A1:A9)</code>)</li><li>Row 9, notes: starts with a character a spreadsheet would run as a formula (<code>@restock</code>)</li></ul></section>
+<section class="problem"><h3>Same identifier, different details <span class="sev high">high</span></h3><p><strong>Why it matters:</strong> Two rows share an identifier but disagree on other fields, so an import may keep the wrong one or overwrite the right one.</p><p><strong>What to do:</strong> Decide which row is correct for each identifier before importing.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 3, product_id: same product_id as row 6 but different values in: price (<code>P-1002</code>)</li><li>Row 6, product_id: same product_id as row 3 but different values in: price (<code>P-1002</code>)</li></ul></section>
+<section class="problem"><h3>Date that cannot be read <span class="sev high">high</span></h3><p><strong>Why it matters:</strong> The value looks like a date but is not a real calendar date (for example month 13), so it may be rejected or misread.</p><p><strong>What to do:</strong> Correct the date in the source system and re-export.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 8, launch_date: looks like a date but is not a valid day-first calendar date (<code>31/13/2025</code>)</li></ul></section>
+<section class="problem"><h3>Exact duplicate row <span class="sev medium">medium</span></h3><p><strong>Why it matters:</strong> Importing both copies can double-count stock, orders or contacts.</p><p><strong>What to do:</strong> Remove the extra copy if it is not intentional.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 11, (whole row): identical to row 10</li></ul></section>
+<section class="problem"><h3>Inconsistent value in a numeric column <span class="sev medium">medium</span></h3><p><strong>Why it matters:</strong> Most values in the column are numbers, but this one is text or uses a different format, so an import may reject it or read it as zero.</p><p><strong>What to do:</strong> Make every value in the column a plain number, or leave the cell empty.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 2, price: reads as 24, but uses currency, percent or thousands marks in a column that also holds non-numeric values (<code>$24.00</code>)</li><li>Row 4, price: not a number, but other values in this column are numbers (<code>N/A</code>)</li><li>Row 9, price: not a number, but other values in this column are numbers (<code>twenty</code>)</li></ul></section>
+<section class="problem"><h3>Leading zeros at risk <span class="sev medium">medium</span></h3><p><strong>Why it matters:</strong> Spreadsheets and number conversions drop leading zeros, which breaks barcodes, postcodes, account numbers and SKUs.</p><p><strong>What to do:</strong> Keep the column as text when opening or importing the file.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 2, barcode: starts with 0; a spreadsheet or number conversion would turn it into 123456 (<code>00123456</code>)</li><li>Row 3, barcode: starts with 0; a spreadsheet or number conversion would turn it into 4012345 (<code>04012345</code>)</li><li>Row 4, barcode: starts with 0; a spreadsheet or number conversion would turn it into 12000 (<code>012000</code>)</li><li>Row 5, barcode: starts with 0; a spreadsheet or number conversion would turn it into 5011111 (<code>05011111</code>)</li></ul><p class="note">and 5 more in the full report.</p></section>
+<section class="problem"><h3>Long number that spreadsheets round <span class="sev medium">medium</span></h3><p><strong>Why it matters:</strong> Spreadsheets keep only 15 significant digits, so longer numbers are silently changed or shown in scientific notation.</p><p><strong>What to do:</strong> Keep the column as text when opening or importing the file.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 7, barcode: 19 digits; spreadsheets keep only 15 significant digits (<code>1234567890123456789</code>)</li></ul></section>
+<section class="problem"><h3>Missing value <span class="sev medium">medium</span></h3><p><strong>Why it matters:</strong> Required fields that are empty are a common reason for rejected or incomplete imports.</p><p><strong>What to do:</strong> Fill the values that your import requires; leave optional ones empty.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 2, notes: no value in this field</li><li>Row 4, notes: no value in this field</li><li>Row 5, title: no value in this field</li><li>Row 5, stock: no value in this field</li></ul><p class="note">and 5 more in the full report.</p></section>
+<section class="problem"><h3>Placeholder instead of an empty value <span class="sev low">low</span></h3><p><strong>Why it matters:</strong> Text such as N/A, null or a dash is imported as text, not as an empty value.</p><p><strong>What to do:</strong> Replace placeholders with empty cells if the target system expects blanks.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 4, price: reads as an empty value (<code>N/A</code>)</li></ul></section>
+<section class="problem"><h3>Line break inside a cell <span class="sev low">low</span></h3><p><strong>Why it matters:</strong> Quoted line breaks are valid CSV, but some import tools and scripts split the row at the line break.</p><p><strong>What to do:</strong> Check that your import tool accepts multi-line cells, or replace the line break with a space.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 8, notes: the value contains a line break (<code>Ships in two ⏎ parcels</code>)</li></ul></section>
+<section class="problem"><h3>Extra spaces <span class="sev low">low</span></h3><p><strong>Why it matters:</strong> Leading, trailing or doubled spaces make identical values look different, which breaks matching and de-duplication.</p><p><strong>What to do:</strong> Trim the spaces.</p><p><strong>Found in the sample:</strong></p><ul><li>Row 3, title: extra spaces at the start, end or middle of the value (<code>Ceramic mug </code>)</li></ul></section>
+
+  <h2>What a scan cannot tell you</h2>
+  <ul>
+    <li>Whether a value is true. A price of 19.5 can be valid and still be the wrong price.</li>
+    <li>Which of two conflicting rows is correct. That is a business decision.</li>
+    <li>Whether a particular platform will accept the file. Each import template has its own required columns and rules.</li>
+    <li>Near-duplicates such as "Ceramic Mug" and "ceramic mugs". The scanner reports exact matches only.</li>
+  </ul>
+
+  <h2>Fixing the problems yourself</h2>
+  <ol>
+    <li>Make a copy of the export and work on the copy.</li>
+    <li>Fix the high-priority findings first: wrong cell counts, formula risks, conflicting identifiers and unreadable dates or numbers.</li>
+    <li>When opening the file in a spreadsheet, import identifier, barcode and postcode columns as text so leading zeros and long numbers survive.</li>
+    <li>Save as CSV UTF-8 and scan the result again before importing.</li>
+  </ol>
+
+  <section class="offer" aria-labelledby="repair-title">
+    <h2 id="repair-title" style="margin-top:0">Prefer to have it repaired?</h2>
+    <p>The scan is free. The existing Fiverr service fixes and verifies files like this one. Scope is confirmed before ordering, and no service can guarantee that another system will accept an import.</p>
+    <ul>
+      <li><strong>One CSV, from US$20 on Fiverr:</strong> up to 100 rows, 3-day delivery, 1 revision; larger packages US$100 (2,000 rows) and US$200 (10,000 rows). Cleaned CSV, change log, exceptions sheet, summary and verification report. Fiverr may show a converted price and buyer fees.</li>
+    </ul>
+    <p><a class="cta" href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" rel="noopener noreferrer" target="_blank">View the Fiverr service</a></p>
+  </section>
+
+  <footer>
+    <p>"Data Rescue Scanner" is a descriptive working title, not a registered trademark. The sample data is synthetic. <a href="index.html">Back to the scanner</a>.</p>
+  </footer>
+</main>
+</body>
+</html>
