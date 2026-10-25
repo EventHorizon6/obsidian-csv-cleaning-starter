@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CSV Cleaning Starter - CA$15 | OBSIDIAN</title>
-<meta name="description" content="One CSV file, up to 50 rows, cleaned and standardised with a change log and an exceptions report. CA$15 one-time. Nothing deleted, every change written down.">
+<title>Check a messy CSV before you import it - five checks and a worked example</title>
+<meta name="description" content="Five checks that catch most CSV import problems: formula-like cells, ambiguous dates, duplicates versus conflicting records, placeholders and broken rows. With a worked example on synthetic data.">
 <style>
   :root { --ink:#14161a; --muted:#5b6170; --line:#e3e5ea; --bg:#f7f8fa; --accent:#1f5eff; --accent-dark:#1647c4; --ok:#147a3d; }
   * { box-sizing: border-box; }
@@ -40,75 +40,71 @@
   .cta { text-align:center; background:var(--bg); border-radius:14px; padding:36px 20px; margin: 40px 0; border:1px solid var(--line); }
   footer { color:var(--muted); font-size:14px; padding: 28px 0 40px; border-top:1px solid var(--line); }
   @media (max-width: 520px) { .btn { display:block; text-align:center; } .hero { padding-top:36px; } }
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div class="brand">OBSIDIAN</div>
-    <a class="btn" style="font-size:15px;padding:10px 16px;min-height:0" href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800">Buy - CA$15</a>
+    <a href="#help" style="color:var(--accent);font-weight:700;text-decoration:none">Get it checked for you</a>
   </div>
 </header>
 
 <main class="wrap">
   <div class="hero">
-    <p class="eyebrow">CSV Cleaning Starter</p>
-    <h1>Your messy CSV, cleaned - with every change written down.</h1>
-    <p class="lead">Send one CSV file of up to 50 rows. You get back a cleaned file in your own columns and order, a log of every value changed, and a list of every problem found for you to decide on.</p>
-    <div class="price"><strong>CA$15</strong><span>one-time, no subscription</span></div>
-    <a class="btn" href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800">Buy the CSV Cleaning Starter</a>
-    <p class="small">Secure payment through Stripe. Delivered within 48 hours of receiving your file and confirming scope.</p>
+    <p class="eyebrow">CSV guide</p>
+    <h1>Check a messy CSV before you import it</h1>
+    <p class="lead">Most CSV import problems come from five things you can check yourself. Here is how to spot each one, a worked example on a synthetic file, and where to get it checked if you would rather not do it yourself.</p>
   </div>
 
   <section>
-    <h2>What gets cleaned</h2>
-    <div class="grid">
-      <div class="card"><h3>Standardisation</h3><p>Stray spaces trimmed, numbers made consistent, and dates written as YYYY-MM-DD where the order is provable from the column.</p></div>
-      <div class="card"><h3>Duplicates flagged</h3><p>Rows that repeat an earlier row, and records that appear twice with different details, are flagged - never silently removed.</p></div>
-      <div class="card"><h3>Missing data flagged</h3><p>Blank, placeholder ("N/A", "null") and unreadable values are listed with their original value and row.</p></div>
-    </div>
-  </section>
-
-  <section>
-    <h2>What you receive</h2>
-    <ul class="check">
-      <li><strong>Cleaned CSV</strong> - your rows, your columns, your order. Nothing deleted.</li>
-      <li><strong>Change log</strong> - every value changed, with its original and its new value.</li>
-      <li><strong>Exceptions report</strong> - duplicates, conflicting records, missing and unreadable values, each with its original value for you to decide.</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>How it works</h2>
+    <h2>Five checks before you import</h2>
     <ol class="steps">
-      <li>Pay CA$15 through the secure Stripe checkout.</li>
-      <li>I reply to the email you give at checkout to confirm the file transfer and that it fits the scope below - before any work starts.</li>
-      <li>You receive the cleaned CSV, change log and exceptions report within 48 hours.</li>
+      <li><strong>Text that would run as a formula.</strong> A cell that is not a plain number but begins with =, +, - or @ can be run as a formula when the file is opened in a spreadsheet. Search each text column for those first characters.</li>
+      <li><strong>Dates that can be read two ways.</strong> 03/04/2025 is either 3 April or 4 March. If some value in the column has a first or second part above 12, the order can be proven. If none does, decide the order yourself instead of letting the importer guess.</li>
+      <li><strong>Duplicates versus conflicts.</strong> Rows that repeat exactly are easy to see. Rows that share an email or ID but disagree elsewhere are a decision, not something to delete. Sort by the key column and compare neighbouring rows.</li>
+      <li><strong>Placeholders and blanks.</strong> "N/A", "null", "-" and an empty cell can mean different things to an importer. Filter each column for them and decide what each should become.</li>
+      <li><strong>Rows with the wrong number of cells.</strong> A stray comma or line break inside a value shifts every cell after it. Open the file in a plain text editor and look at rows that are longer or shorter than the header.</li>
     </ol>
+  </section>
+
+  <section>
+    <h2>A worked example (synthetic data, not a client file)</h2>
+    <p>An eight-row synthetic CSV contained three duplicate groups: one group of exact repeats and two groups of records that shared a key but disagreed elsewhere - six rows in the two conflict groups. The same file also held formula-like text, ambiguous numbers, placeholder text, a repeated row and an empty cell.</p>
+    <p>Nothing was deleted. Each finding was listed with its spreadsheet row number so a person could decide what to keep. A cell with no flag is not a guarantee of business correctness.</p>
+  </section>
+
+  <section id="help">
+    <h2>If you would rather have it checked for you</h2>
+    <p>Choose by what you need and how many rows your file has:</p>
+    <table>
+      <tr><th>What you need</th><th>Rows</th><th>Service and price</th></tr>
+      <tr><td>A cleaned file, a log of every change and a list of problems for you to decide</td><td>up to 50</td><td><a href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800?client_reference_id=guide-page">CSV Cleaning Starter - CA$15</a></td></tr>
+      <tr><td>A list of every duplicate and conflicting record, read-only</td><td>up to 2,000</td><td><a href="https://buy.stripe.com/14A5kw1Gf1Eq1BZcnv04801?client_reference_id=guide-page">Duplicate Detection &amp; Audit - CA$29</a></td></tr>
+      <tr><td>A ranked audit of what is wrong, per column, read-only</td><td>up to 2,000</td><td><a href="https://buy.stripe.com/3cIcMY70zaaW6Wjcnv04802?client_reference_id=guide-page">Spreadsheet Quality Audit - CA$39</a></td></tr>
+      <tr><td>Cleaning a larger file, or a question before buying</td><td>up to 10,000</td><td><a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report">Fiverr listing</a> - US$50 (100 rows), US$100 (2,000) or US$200 (10,000); you can message the seller there before ordering</td></tr>
+    </table>
+    <p class="small">CA$ services: secure Stripe-hosted checkout, delivered within 48 hours of receiving your file and confirming scope. Fiverr orders are placed and paid on Fiverr.</p>
   </section>
 
   <section>
     <h2>Honest scope</h2>
     <ul class="plain">
-      <li>One CSV file, up to 50 data rows (counted after fully blank rows are removed), one cleaning pass.</li>
-      <li>Where a date column could be read day-first or month-first, it is flagged and left as it is - I do not guess.</li>
+      <li>CSV files only, one sheet per order. Not included: CRM imports or field mapping, email or phone verification, Excel workbooks with formulas or multiple sheets.</li>
+      <li>Where a date could be read day-first or month-first, it is flagged and left as it is - not guessed.</li>
       <li>Duplicates are flagged, not deleted. You decide what goes.</li>
-      <li>Not included: CRM imports or field mapping, email or phone verification, Excel workbooks with formulas or multiple sheets, merged or multi-level headers.</li>
-      <li>I cannot guarantee that another system will accept the file on import; the reports show exactly what was found and changed.</li>
+      <li>No guarantee that another system will accept the file on import; the reports show exactly what was found and changed.</li>
       <li>Your file is processed on my own machine, never shared, and deleted within 7 days of delivery. Nobody in your data is contacted.</li>
-      <li>If the file turns out not to fit this scope, I tell you before starting rather than deliver poor work.</li>
+      <li>If the file does not fit the scope, I tell you before starting rather than deliver poor work.</li>
     </ul>
   </section>
-
-  <div class="cta">
-    <h2>Clean one CSV for CA$15</h2>
-    <p class="small" style="margin:0 0 18px">One file, up to 50 rows, 48-hour delivery.</p>
-    <a class="btn" href="https://buy.stripe.com/3cI5kw4Sr1Eq6Wj3QZ04800">Buy now - CA$15</a>
-  </div>
 </main>
 
 <footer>
-  <div class="wrap">OBSIDIAN - CSV Cleaning Starter. Payments are processed by Stripe; card details never reach OBSIDIAN.</div>
+  <div class="wrap">OBSIDIAN - CSV guide. Payments are processed by Stripe or Fiverr; card details never reach this site.</div>
 </footer>
 </body>
 </html>
