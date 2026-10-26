@@ -117,7 +117,29 @@ P-1009,Glass carafe,27,,07/05/2025,,</code></pre>
     <p><a class="cta" href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" rel="noopener noreferrer" target="_blank">View the Fiverr service</a></p>
   </section>
 
-  <footer>
+  <section id="export100">
+<h2>From a messy CSV to a checked delivery: an eight-row example</h2>
+<p>This is synthetic demonstration data, not a customer project. Scanning finds problems; cleanup is a separate step that must be checked against the original.</p>
+<p>Before:</p><pre>id,Date,Amount,Description
+A001,13/10/2026,&quot;1,200.00&quot;,  Invoice A</pre>
+<p>After:</p><pre>id,Date,Amount,Description
+A001,2026-10-13,1200,Invoice A</pre>
+<p>In the complete eight-row example:
+- All eight records remain, in the same order and with the same columns.
+- Dates with evidence of day-first order become YYYY-MM-DD. Do not guess a date convention from one ambiguous value.
+- Numeric formatting is standardised where the whole column supports that interpretation.
+- An exact repeated row stays in the file and is flagged. Records sharing an ID but disagreeing also stay and are flagged; deciding which is correct is not a formatting task.
+- A missing amount stays empty. The report does not invent a value.
+- A formula-like value is marked as text in the file intended for spreadsheet opening. The separate machine-import file does not have that safety marker; do not open it as a spreadsheet.</p>
+<p>The run logged 17 changes and five exceptions. Each changed value has its original in the change log. An independent expected-output check matched every output cell. The package check also reconciled the counts and verified file hashes; it refused a deliberately altered package.</p>
+<p>An additional mixed-number check left both &quot;1,200.00&quot; and &quot;1,2,3&quot; unchanged and flagged them instead of guessing. These results apply to the tested examples, not every possible export.</p>
+<p>Before paying for cleanup, confirm what the identifiers mean, the intended date/number formats and which changes are acceptable. This example uses IDs such as A001. Identifiers whose leading zeros or exact numeric text must be preserved need separate scope confirmation; this demonstration does not prove that case.</p>
+<p>If you want a similar small export cleaned, my existing Fiverr Basic service is US$20 for one CSV up to 100 nonblank data rows, three-day delivery and one in-scope revision. You receive two CSV versions, a change log, exceptions sheet, summary and verification report. No duplicate deletion, missing-value invention, accounting decisions, workbook formulas, live-system access or guaranteed import acceptance.</p>
+<p>Message me through Fiverr with &quot;EXPORT100&quot;, your approximate row count, source/destination tools and the problem. Confirm scope before ordering or sending a file. Do not post data in comments. For a sample, replace personal, financial, confidential and identifying values with fictional ones. No credentials or system access are needed. Accepted files are processed locally; working copies are deleted within seven days of delivery. Fiverr&#x27;s own retention policies apply to files stored on its platform.</p>
+<p>One revision covers corrections within the agreed scope, not a new dataset or new integration. If the agreed work cannot be completed, cancellation/refund is handled through Fiverr&#x27;s applicable process; no automatic refund or third-party import guarantee is promised. Buyer fees and currency conversion may apply; check the final total on Fiverr.</p>
+<p>View the service or enquire:<br><a href="https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report" rel="noopener noreferrer">https://www.fiverr.com/dustinrebellato/clean-standardise-and-flag-your-spreadsheet-with-a-verified-report</a></p>
+</section>
+<footer>
     <p>"Data Rescue Scanner" is a descriptive working title, not a registered trademark. The sample data is synthetic. <a href="index.html">Back to the scanner</a>.</p>
   </footer>
 </main>
