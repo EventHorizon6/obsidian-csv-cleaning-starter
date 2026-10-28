@@ -1,0 +1,4 @@
+group,kind,rows,key,differs_in,detail
+1,exact-duplicate,2 3,,,identical in every column
+2,near-duplicate,4 5,,,identical once letter case and spacing are ignored
+3,key-conflict,6 7,ID,Product,same ID; review before merging

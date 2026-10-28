@@ -1,0 +1,38 @@
+{
+  "synthetic": true,
+  "status": "PASS",
+  "expected_groups_predeclared": [
+    [
+      "exact-duplicate",
+      "2 3"
+    ],
+    [
+      "near-duplicate",
+      "4 5"
+    ],
+    [
+      "key-conflict",
+      "6 7"
+    ]
+  ],
+  "actual_groups": [
+    [
+      "exact-duplicate",
+      "2 3"
+    ],
+    [
+      "near-duplicate",
+      "4 5"
+    ],
+    [
+      "key-conflict",
+      "6 7"
+    ]
+  ],
+  "exact_key_and_differing_column": "PASS",
+  "source_byte_preservation": "PASS",
+  "source_sha256": "c281c5c591d1342739aa4e2af25109fcf86d16621bc2711a32489091198292d9",
+  "clean_input_zero_groups": "PASS",
+  "null_byte_input_rejected_without_partial_reports": "PASS",
+  "limits": "Six-record fixture only; no customer data, performance guarantee or universal accuracy."
+}

@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "groups": [
+    [
+      "exact-duplicate",
+      "2 3"
+    ],
+    [
+      "near-duplicate",
+      "4 5"
+    ],
+    [
+      "key-conflict",
+      "6 7"
+    ]
+  ]
+}
